@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2019 AEVI International GmbH. All rights reserved
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
+ */
 package com.aevi.barcode.scanner;
 
 import android.content.Context;
@@ -21,11 +39,9 @@ import io.reactivex.schedulers.Schedulers;
 
 public class Camera2Preview extends TextureView {
 
-    private static final int DEFAULT_SENSOR_ORIENTATION = 90;
-
     private CameraManager cameraManager;
     private WindowManager windowManager;
-    private int sensorOrientation = DEFAULT_SENSOR_ORIENTATION;
+    private int sensorOrientation = 0;
 
 
     public Camera2Preview(Context context) {
@@ -58,13 +74,16 @@ public class Camera2Preview extends TextureView {
 
     private void onCameraOpened(CameraDevice cameraDevice) throws CameraAccessException {
         CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraDevice.getId());
-        sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) - 90;
+        if (sensorOrientation < 0) {
+            sensorOrientation = 0;
+        }
         transform(Callback.SIZE_CHANGED);
     }
 
     private void transform(Callback callback) {
         if (Callback.AVAILABLE.equals(callback) || Callback.SIZE_CHANGED.equals(callback)) {
-            int rotation = sensorOrientation - DEFAULT_SENSOR_ORIENTATION * (1 + windowManager.getDefaultDisplay().getRotation());
+            int rotation = sensorOrientation - 90 * windowManager.getDefaultDisplay().getRotation();
             Matrix matrix = new Matrix();
             matrix.postRotate(rotation, getWidth() / 2f, getHeight() / 2f);
             setTransform(matrix);
