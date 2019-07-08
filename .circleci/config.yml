@@ -111,7 +111,7 @@ jobs:
       # ********************************************
       # Define tasks to run on normal branches
       # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-      - run: ./gradlew assmbleRelease publishReleasePublicationToSnapshotRepository
+      - run: ./gradlew assembleRelease publishReleasePublicationToSnapshotRepository
       # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   assemble-deploy-qa:
