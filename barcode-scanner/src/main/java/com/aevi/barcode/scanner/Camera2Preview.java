@@ -21,9 +21,6 @@ package com.aevi.barcode.scanner;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.media.Image;
 import android.media.ImageReader;
@@ -41,8 +38,6 @@ public class Camera2Preview extends TextureView {
 
     private CameraManager cameraManager;
     private WindowManager windowManager;
-    private int sensorOrientation = 0;
-
 
     public Camera2Preview(Context context) {
         super(context);
@@ -67,23 +62,14 @@ public class Camera2Preview extends TextureView {
                 surfaceTextureObservable = SurfaceTextureObservable.create(this, new Handler(Looper.getMainLooper()));
 
         return CameraFrameObservable.create(cameraManager,
-                CameraObservable.create(cameraManager).doOnNext(cameraDevice -> onCameraOpened(cameraDevice)),
+                CameraObservable.create(cameraManager),
                 SurfaceObservable.create(surfaceTextureObservable.doOnNext(tuple -> transform(tuple.t1)), surfaceTexture -> new Surface(surfaceTexture)),
                 (width, height, maxImages) -> ImageReader.newInstance(width, height, imageFormat, maxImages), Schedulers.computation());
     }
 
-    private void onCameraOpened(CameraDevice cameraDevice) throws CameraAccessException {
-        CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraDevice.getId());
-        sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) - 90;
-        if (sensorOrientation < 0) {
-            sensorOrientation = 0;
-        }
-        transform(Callback.SIZE_CHANGED);
-    }
-
     private void transform(Callback callback) {
         if (Callback.AVAILABLE.equals(callback) || Callback.SIZE_CHANGED.equals(callback)) {
-            int rotation = sensorOrientation - 90 * windowManager.getDefaultDisplay().getRotation();
+            int rotation = (windowManager.getDefaultDisplay().getRotation() * -90) % 360;
             Matrix matrix = new Matrix();
             matrix.postRotate(rotation, getWidth() / 2f, getHeight() / 2f);
             setTransform(matrix);

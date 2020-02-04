@@ -1,13 +1,13 @@
 ext {
 
-    compileSDK = 28
+    compileSDK = 29
 
-    androidBuildVersion = "28.0.3"
-    projectMaxSdkVersion = 28
+    androidBuildVersion = "29.0.3"
+    projectMaxSdkVersion = 29
     projectMinSdkVersion = 21
 
     presentationDependencies = [
-            appCompat         : "androidx.appcompat:appcompat:1.0.2"
+            appCompat         : "androidx.appcompat:appcompat:1.1.0"
     ]
 
     domainDependencies = [
@@ -15,7 +15,7 @@ ext {
     ]
     
     testDependencies = [
-            junit   :  "junit:junit:4.12",
-            mockito : "org.mockito:mockito-inline:2.27.0",
+            junit   :  "junit:junit:4.13",
+            mockito : "org.mockito:mockito-inline:3.2.4",
     ]
 }
