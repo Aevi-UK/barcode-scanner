@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
+import android.view.View;
 import com.aevi.barcode.scanner.BarcodeScanner;
 import com.aevi.barcode.scanner.Camera2Preview;
 
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         camera2Preview = findViewById(R.id.camera_preview);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION|View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     @Override

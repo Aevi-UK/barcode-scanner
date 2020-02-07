@@ -35,11 +35,12 @@ public class TestCameraFrameObservable extends BaseTest {
 
         observer.dispose();
         observer.assertValue(image);
-        InOrder inOrder = Mockito.inOrder(image, captureSession, surfaceEmulator.getSurface(), cameraDevice);
+        InOrder inOrder = Mockito.inOrder(image, captureSession, cameraDevice, surfaceEmulator.getSurface(), imageReaderEmulator.getImageReader());
         inOrder.verify(image).close();
         inOrder.verify(captureSession).close();
         inOrder.verify(cameraDevice).close();
         inOrder.verify(surfaceEmulator.getSurface()).release();
+        inOrder.verify(imageReaderEmulator.getImageReader()).close();
     }
 
     @Test
@@ -50,14 +51,13 @@ public class TestCameraFrameObservable extends BaseTest {
         cameraEmulator.onConfigureFailed(cameraDevice, surfaces);
 
         observer.assertError(Exception.class);
-        Mockito.verify(cameraDevice).close();
         Mockito.verify(surfaceEmulator.getSurface()).release();
+        Mockito.verify(cameraDevice).close();
     }
 
     private TestObserver<Image> setupObserver() {
-        return CameraFrameObservable.create(cameraEmulator.getCameraManager(),
-                CameraObservable.create(cameraEmulator.getCameraManager()),
-                SurfaceObservable.create(SurfaceTextureObservable.create(surfaceEmulator.getTextureView(), mainHandler), surfaceEmulator.getSurfaceFactory()),
-                (width, height, maxImages) -> imageReaderEmulator.getImageReader(), null).test();
+        return Camera2Preview.createObservable(SurfaceTextureObservable.create(surfaceEmulator.getTextureView(), mainHandler), cameraEmulator.getCameraManager(),
+                surfaceTexture -> surfaceEmulator.getSurface(), (width, height, maxImages) -> imageReaderEmulator.getImageReader(), null, (a, b) -> {
+                }).test();
     }
 }

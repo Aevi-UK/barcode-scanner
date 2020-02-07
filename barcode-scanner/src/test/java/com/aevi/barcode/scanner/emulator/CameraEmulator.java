@@ -43,7 +43,7 @@ public class CameraEmulator {
     }
 
     static {
-        for (String field : new String[]{"CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES", "SCALER_STREAM_CONFIGURATION_MAP"}) {
+        for (String field : new String[]{"CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES", "SCALER_STREAM_CONFIGURATION_MAP", "SENSOR_ORIENTATION"}) {
             try {
                 setFinalStatic(CameraCharacteristics.class.getField(field), Mockito.mock(CameraCharacteristics.Key.class));
             } catch (Exception e) {
@@ -68,6 +68,7 @@ public class CameraEmulator {
         try {
             Mockito.doReturn(cameraList).when(cameraManager).getCameraIdList();
             Mockito.doReturn(characteristics).when(cameraManager).getCameraCharacteristics(Mockito.anyString());
+            Mockito.doReturn(Integer.valueOf(0)).when(characteristics).get(CameraCharacteristics.SENSOR_ORIENTATION);
             Mockito.doReturn(new Range[]{mockRange(5, 30)}).when(characteristics).get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
             Mockito.doReturn(streamConfigurationMap).when(characteristics).get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             Mockito.doReturn(new Size[]{Mockito.mock(Size.class)}).when(streamConfigurationMap).getOutputSizes(Mockito.any(Class.class));
