@@ -13,12 +13,6 @@ android {
         minSdkVersion projectMinSdkVersion
         targetSdkVersion projectMaxSdkVersion
         versionCode project.apiVersionCode
-
-        ndk {
-            // Specifies the ABI configurations of your native
-            // libraries Gradle should build and package with your APK.
-            abiFilters 'x86', 'armeabi-v7a'
-        }
     }
 
     buildTypes {
@@ -52,4 +46,28 @@ dependencies {
     implementation domainDependencies.rxAndroid
     testImplementation testDependencies.junit
     testImplementation testDependencies.mockito
+}
+
+project.ext.cmakedir = file("${project.buildDir}/cmake")
+
+task cmake(type: Exec) {
+    executable = 'cmake'
+    args = [
+            "-B" + project.cmakedir
+    ]
+    doFirst {
+        cmakedir.mkdirs()
+    }
+}
+
+task cmakeBuild(type: Exec, dependsOn: cmake) {
+    executable = 'cmake'
+    args = [
+            '--build', project.cmakedir
+    ]
+}
+
+tasks.withType(Test) {
+    systemProperty "java.library.path", project.cmakedir
+    dependsOn cmakeBuild
 }

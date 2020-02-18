@@ -28,8 +28,6 @@
 #ifndef NDK_ANDROID_SUPPORT_ICONV_H
 #define NDK_ANDROID_SUPPORT_ICONV_H
 
-#if !defined(__LP64__)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -46,6 +44,5 @@ int     iconv_close(iconv_t);
 }  // extern "C"
 #endif
 
-#endif // !__LP64__
 
 #endif  // NDK_ANDROID_SUPPORT_ICONV_H

@@ -12,7 +12,6 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Iterator;
 
-@Ignore
 public class TestScanImage
 {
     protected ImageScanner scanner;

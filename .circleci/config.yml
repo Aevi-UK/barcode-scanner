@@ -12,7 +12,7 @@ generic:
   - &attach_workspace
     attach_workspace:
       at: ~/
-      
+
   - &init_ndk
     restore_cache:
       keys:
@@ -61,14 +61,23 @@ jobs:
       - checkout
       - *init_ndk
       - run:
-          name: Setup CMake
+          name: Setup Linux CMake
+          command: |
+            if [ ! -d ~/cmake ]; then
+              mkdir ~/cmake
+              wget -qO- https://github.com/Kitware/CMake/releases/download/v3.15.7/cmake-3.15.7-Linux-x86_64.tar.gz | tar xz -C ~/cmake --strip 1
+            fi
+            echo 'export PATH="$HOME/cmake/bin:$PATH"' >> $BASH_ENV
+      - run:
+          name: Setup Android CMake
           command: echo y | sdkmanager "cmake;3.6.4111459"
       - run:
           name: Setup Android NDK
-          # note that version is missiong, if a new one is available manually increment the cache version
+          # note that version is missing, if a new one is available manually increment the cache version
           command: echo y | sdkmanager ndk-bundle
       - save_cache:
           paths:
+            - ~/cmake
             - /opt/android/sdk/cmake
             - /opt/android/sdk/ndk-bundle
           key: v1-ndk-{{ checksum ".circleci/config.yml" }}
