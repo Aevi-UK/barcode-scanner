@@ -41,6 +41,11 @@ import io.reactivex.schedulers.Schedulers;
 
 public class Camera2Preview extends TextureView {
 
+    public enum FillMode {
+        FIT,
+        ZOOM,
+    }
+
     public interface SurfaceFactory {
         Surface create(SurfaceTexture surfaceTexture);
     }
@@ -68,28 +73,28 @@ public class Camera2Preview extends TextureView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public Observable<Image> start(int imageFormat) {
+    public Observable<Image> start(int cameraIndex, FillMode fillMode, int rotation, int imageFormat) {
         windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Observable<Tuple.Tuple2<Callback, SurfaceTexture>> surfaceTextureObservable = SurfaceTextureObservable
                 .create(this, new Handler(Looper.getMainLooper()))
                 .doOnNext(tuple -> transform(tuple.t1));
 
-        return createObservable(surfaceTextureObservable,
+        return createObservable(surfaceTextureObservable, cameraIndex,
                 (CameraManager) getContext().getSystemService(Context.CAMERA_SERVICE),
                 (surfaceTexture) -> new Surface(surfaceTexture),
                 (width, height, maxImages) -> ImageReader.newInstance(width, height, imageFormat, maxImages),
                 Schedulers.computation(), (sensorOrientation, cameraSize) -> {
-                    transform = () -> transform(sensorOrientation, cameraSize);
+                    transform = () -> transform(sensorOrientation, cameraSize, fillMode, rotation);
                     transform.run();
                 });
     }
 
     public static Observable<Image> createObservable(Observable<Tuple.Tuple2<Callback, SurfaceTexture>> surfaceTextureObservable,
-                                                     CameraManager cameraManager, SurfaceFactory surfaceFactory,
+                                                     int cameraIndex, CameraManager cameraManager, SurfaceFactory surfaceFactory,
                                                      ImageReaderFactory imageReaderFactory, Scheduler scheduler,
                                                      OnPreviewReadyListener onPreviewReadyListener) {
 
-        return CameraFrameObservable.create(CameraObservable.create(cameraManager).zipWith(
+        return CameraFrameObservable.create(CameraObservable.create(cameraManager, cameraIndex).zipWith(
                 surfaceTextureObservable.filter(event -> Callback.AVAILABLE.equals(event.t1)), (camera, surfaceEvent) -> {
                     CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camera.getId());
                     SurfaceTexture surfaceTexture = surfaceEvent.t2;
@@ -103,13 +108,23 @@ public class Camera2Preview extends TextureView {
                         surface -> surface.release())), imageReaderFactory, scheduler);
     }
 
+    private static float selectRatio(FillMode fillMode, float a, float b) {
+        switch (fillMode) {
+            case FIT:
+                return Math.min(a, b);
+            case ZOOM:
+            default:
+                return Math.max(a, b);
+        }
+    }
+
     private void transform(Callback type) {
         if (transform != null && Callback.SIZE_CHANGED.equals(type)) {
             transform.run();
         }
     }
 
-    private void transform(int sensorOrientation, Size cameraSize) {
+    private void transform(int sensorOrientation, Size cameraSize, FillMode fillMode, int forcedRotation) {
         SizeF frameSize = sensorOrientation % 180 == 0 ? new SizeF(cameraSize.getWidth(), cameraSize.getHeight())
                 : new SizeF(cameraSize.getHeight(), cameraSize.getWidth());
 
@@ -118,11 +133,11 @@ public class Camera2Preview extends TextureView {
 
         matrix.preScale(frameSize.getWidth() / getWidth(), frameSize.getHeight() / getHeight(), center.x, center.y);
 
-        int rotation = (windowManager.getDefaultDisplay().getRotation() * -90) % 360;
+        int rotation = (forcedRotation + windowManager.getDefaultDisplay().getRotation() * -90) % 360;
         matrix.postRotate(rotation, center.x, center.y);
 
         SizeF rotatedFrameSize = rotation % 180 == 0 ? frameSize : new SizeF(frameSize.getHeight(), frameSize.getWidth());
-        float ratio = Math.max(getWidth() / rotatedFrameSize.getWidth(), getHeight() / rotatedFrameSize.getHeight());
+        float ratio = selectRatio(fillMode, getWidth() / rotatedFrameSize.getWidth(), getHeight() / rotatedFrameSize.getHeight());
         matrix.postScale(ratio, ratio, center.x, center.y);
 
         setTransform(matrix);

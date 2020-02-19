@@ -56,8 +56,9 @@ public class TestCameraFrameObservable extends BaseTest {
     }
 
     private TestObserver<Image> setupObserver() {
-        return Camera2Preview.createObservable(SurfaceTextureObservable.create(surfaceEmulator.getTextureView(), mainHandler), cameraEmulator.getCameraManager(),
-                surfaceTexture -> surfaceEmulator.getSurface(), (width, height, maxImages) -> imageReaderEmulator.getImageReader(), null, (a, b) -> {
+        return Camera2Preview.createObservable(SurfaceTextureObservable.create(surfaceEmulator.getTextureView(), mainHandler), 0,
+                cameraEmulator.getCameraManager(), surfaceTexture -> surfaceEmulator.getSurface(), (width, height, maxImages) -> imageReaderEmulator.getImageReader(),
+                null, (a, b) -> {
                 }).test();
     }
 }
