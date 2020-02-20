@@ -1,0 +1,13 @@
+## Version 2.1.0
+
+Camera preview rendering enhancements
+
+Changes and fixes:
+* Bug fix about preview rotation not being computed correctly
+* Build for all supported Android ABI
+* Changed the camera exposure to have brighter previews
+* Updated the API for better control over preview rendering
+
+Known Issues:
+* Camera gets closed and re-opened on screen rotation causing some devices to make a 'click' noise
+* Preview gets upside down if the device is quickly rotated to an angle of 180 degrees
