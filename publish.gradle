@@ -26,7 +26,7 @@ publishing {
                 url "s3://sdk-snapshots.aevi.com/maven2"
                 credentials(AwsCredentials) {
                     accessKey System.getenv("AEVI_ARTIFACTORY_AWS_ACCESS_ID")
-                    accessKey System.getenv("AEVI_ARTIFACTORY_AWS_SECRET")
+                    secretKey System.getenv("AEVI_ARTIFACTORY_AWS_SECRET")
                 }
             }
         }

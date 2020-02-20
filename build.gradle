@@ -5,7 +5,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath 'com.android.tools.build:gradle:3.5.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     }
 }
@@ -26,15 +26,15 @@ allprojects {
     project.ext {
         branch = 'git rev-parse --abbrev-ref HEAD'.execute([], project.rootDir).text.trim()
         sha = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
-        apiVersion = "2.0.1"
-        apiVersionCode = 2005
-        apiRc = 3
+        apiVersion = "2.1.0"
+        apiVersionCode = 2006
+        apiRc = 1
 
         getVersionName = { suffix = '' ->
             if (branch.equals('master')) {
                 return "${apiVersion}${suffix}"
             } else if (branch.startsWith('release/')) {
-                "${apiVersion}${suffix}-RC3"
+                "${apiVersion}${suffix}-RC1"
             } else {
                 "${apiVersion}${suffix}-SNAPSHOT-${sha}"
             }

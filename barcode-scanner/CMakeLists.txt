@@ -7,7 +7,11 @@ set( cpp-dir src/main/cpp )
 set( jni-dir ${cpp-dir}/jni )
 set( zbar-dir ${cpp-dir}/zbar )
 set( musl-locale-dir ${cpp-dir}/musl-locale )
-set( support-dir ${ANDROID_NDK}/sources/android/support )
+
+if(NOT ANDROID_ABI)
+    find_package(JNI REQUIRED)
+    include_directories(${JNI_INCLUDE_DIRS})
+endif()
 
 # Specifies a library name, specifies whether the library is STATIC or
 # SHARED, and provides relative paths to the source code. You can

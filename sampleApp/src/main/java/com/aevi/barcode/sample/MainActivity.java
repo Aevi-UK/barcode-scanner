@@ -23,6 +23,7 @@ import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import com.aevi.barcode.scanner.BarcodeScanner;
 import com.aevi.barcode.scanner.Camera2Preview;
 
@@ -63,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         }
     }
 
+    private static final String CAMERA_INDEX = "camera_index";
+
+    private int cameraIndex = 0;
     private Camera2Preview camera2Preview;
     private Disposable disposable;
 
@@ -71,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         camera2Preview = findViewById(R.id.camera_preview);
+        findViewById(R.id.camera_switch).setOnClickListener((view) -> switchCamera());
     }
 
     @Override
@@ -89,8 +94,21 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         stopScanning();
     }
 
-    public void startScanning() {
-        disposable = camera2Preview.start(BarcodeScanner.IMAGE_FORMAT)
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(CAMERA_INDEX, cameraIndex);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        cameraIndex = savedInstanceState.getInt(CAMERA_INDEX);
+
+    }
+
+    private void startScanning() {
+        disposable = camera2Preview.start(cameraIndex, Camera2Preview.FillMode.ZOOM, 0, BarcodeScanner.IMAGE_FORMAT)
                 .compose(new BarcodeScanner())
                 .observeOn(AndroidSchedulers.mainThread())
                 .retryWhen(throwable -> throwable.delay(500, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread()))
@@ -101,6 +119,12 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
         if (disposable != null) {
             disposable.dispose();
         }
+    }
+
+    private void switchCamera() {
+        cameraIndex += 1;
+        stopScanning();
+        startScanning();
     }
 
     @Override

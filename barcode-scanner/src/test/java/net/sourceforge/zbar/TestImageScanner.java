@@ -9,7 +9,6 @@ import org.junit.Assert.*;
 import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Config;
 
-@Ignore
 public class TestImageScanner
 {
     protected ImageScanner scanner;

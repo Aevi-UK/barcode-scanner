@@ -8,7 +8,6 @@ import static org.junit.Assert.*;
 
 import net.sourceforge.zbar.Image;
 
-@Ignore
 public class TestImage
 {
     protected Image image;

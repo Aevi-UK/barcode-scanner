@@ -1,15 +1,13 @@
 package com.aevi.barcode.scanner;
 
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -41,34 +39,33 @@ import io.reactivex.functions.Function;
 public class CameraFrameObservable {
 
     public interface ImageReaderFactory {
-
         ImageReader create(int width, int height, int maxImages);
     }
 
-    public static Observable<Image> create(CameraManager cameraManager, Observable<CameraDevice> cameraObservable,
-                                           Observable<Surface> surfaceTextureObservable, ImageReaderFactory imageReaderFactory, Scheduler scheduler) {
-        return cameraObservable.zipWith(surfaceTextureObservable, (cameraDevice, surface) -> Tuple.of(cameraDevice, surface))
-                .concatMap(params -> {
-                    CameraDevice camera = params.t1;
-                    Surface surface = params.t2;
-                    Size imageReaderSize = findOptimalSize(cameraManager, camera, 1080, 720, 0d);
-                    final ImageReader imageReader = imageReaderFactory.create(imageReaderSize.getWidth(), imageReaderSize.getHeight(), 3);
-                    return CaptureSessionObservable.create(camera, Arrays.asList(surface, imageReader.getSurface()))
-                            .concatMap((Function<CameraCaptureSession, ObservableSource<ImageReader>>) cameraCaptureSession -> {
-                                        CaptureRequest.Builder captureRequestBuilder =
-                                                cameraCaptureSession.getDevice().createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-                                        captureRequestBuilder.addTarget(surface);
-                                        captureRequestBuilder.addTarget(imageReader.getSurface());
-                                        cameraCaptureSession.setRepeatingRequest(captureRequestBuilder.build(), null, null);
-                                        return Observable.just(imageReader);
-                                    }
-                            );
-                }).flatMap((Function<ImageReader, ObservableSource<Image>>) imageReader -> ImageObservable.create(imageReader, 500, scheduler));
+    public static Observable<Image> create(Observable<Tuple.Tuple3<CameraDevice, CameraCharacteristics, Surface>> observable,
+                                           ImageReaderFactory imageReaderFactory, Scheduler scheduler) {
+        return observable.concatMap(params -> CameraFrameObservable.create(params.t1, params.t2, params.t3, imageReaderFactory))
+                .flatMap((Function<ImageReader, ObservableSource<Image>>) imageReader -> ImageObservable.create(imageReader, 500, scheduler));
     }
 
-    private static Size findOptimalSize(CameraManager cameraManager, CameraDevice cameraDevice, int width, int height, double ratioDelta)
-            throws CameraAccessException {
-        CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraDevice.getId());
+    private static Observable<ImageReader> create(CameraDevice camera, CameraCharacteristics characteristics, Surface surface,
+                                                  ImageReaderFactory imageReaderFactory) {
+        Size imageReaderSize = findOptimalSize(characteristics, 1080, 720, 0d);
+        final ImageReader imageReader = imageReaderFactory.create(imageReaderSize.getWidth(), imageReaderSize.getHeight(), 3);
+        return CaptureSessionObservable.create(camera, Arrays.asList(surface, imageReader.getSurface()))
+                .concatMap(cameraCaptureSession -> {
+                            CaptureRequest.Builder captureRequestBuilder =
+                                    cameraCaptureSession.getDevice().createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, findOptimalAutoExposureRange(characteristics));
+                            captureRequestBuilder.addTarget(surface);
+                            captureRequestBuilder.addTarget(imageReader.getSurface());
+                            cameraCaptureSession.setRepeatingRequest(captureRequestBuilder.build(), null, null);
+                            return Observable.just(imageReader);
+                        }
+                );
+    }
+
+    public static Size findOptimalSize(CameraCharacteristics characteristics, int width, int height, double ratioDelta) {
         StreamConfigurationMap configuration = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
         Size[] sizes = configuration.getOutputSizes(SurfaceTexture.class);
         Size optimal = sizes[0];
@@ -81,6 +78,18 @@ public class CameraFrameObservable {
                 // Fallback to the one with the more pixels
             } else if (optimal.getWidth() * optimal.getHeight() < size.getWidth() * size.getHeight()) {
                 optimal = size;
+            }
+        }
+        return optimal;
+    }
+
+    private static Range<Integer> findOptimalAutoExposureRange(CameraCharacteristics characteristics) {
+        Range<Integer>[] ranges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+        Range<Integer> optimal = ranges[0];
+        for (Range<Integer> range : ranges) {
+            // We just lookup for the one with the lower value here since we don't really care about fps drops for a preview
+            if (range.getLower() < optimal.getLower()) {
+                optimal = range;
             }
         }
         return optimal;

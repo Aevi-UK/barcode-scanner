@@ -28,16 +28,18 @@ import io.reactivex.ObservableOnSubscribe;
 
 public class CameraObservable extends CameraDevice.StateCallback implements ObservableOnSubscribe<CameraDevice> {
 
-    public static Observable<CameraDevice> create(CameraManager cameraManager) {
-        return Observable.create(new CameraObservable(cameraManager));
+    public static Observable<CameraDevice> create(CameraManager cameraManager, int cameraIndex) {
+        return Observable.create(new CameraObservable(cameraManager, cameraIndex));
     }
 
     private final CameraManager cameraManager;
+    private final int cameraIndex;
     private volatile CameraDevice cameraDevice;
     private volatile ObservableEmitter<CameraDevice> observableEmitter;
 
-    private CameraObservable(CameraManager cameraManager) {
+    private CameraObservable(CameraManager cameraManager, int cameraIndex) {
         this.cameraManager = cameraManager;
+        this.cameraIndex = cameraIndex;
     }
 
     @SuppressLint("MissingPermission")
@@ -50,7 +52,8 @@ public class CameraObservable extends CameraDevice.StateCallback implements Obse
                     cameraDevice.close();
                 }
             });
-            cameraManager.openCamera(cameraManager.getCameraIdList()[0], this, null);
+            String[] ids = cameraManager.getCameraIdList();
+            cameraManager.openCamera(ids[cameraIndex % ids.length], this, null);
 
         }
     }

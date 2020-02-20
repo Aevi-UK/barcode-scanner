@@ -15,7 +15,7 @@ public class TestCameraObservable extends BaseTest {
 
     @Test
     public void doEmitCameraOpening() {
-        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager()).test();
+        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager(), 0).test();
 
         CameraDevice cameraDevice = emulator.onOpened(CameraEmulator.CAMERA_LIST_SAMPLE[0]);
         observer.dispose();
@@ -26,7 +26,7 @@ public class TestCameraObservable extends BaseTest {
 
     @Test
     public void doHandleDisposeBeforeCameraOpening() {
-        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager()).test();
+        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager(), 0).test();
 
         observer.dispose();
         CameraDevice cameraDevice = emulator.onOpened(CameraEmulator.CAMERA_LIST_SAMPLE[0]);
@@ -37,7 +37,7 @@ public class TestCameraObservable extends BaseTest {
 
     @Test
     public void doCompleteUponCameraDisconnection() {
-        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager()).test();
+        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager(), 0).test();
 
         CameraDevice cameraDevice = emulator.onOpened(CameraEmulator.CAMERA_LIST_SAMPLE[0]);
         emulator.onDisconnected(cameraDevice);
@@ -49,7 +49,7 @@ public class TestCameraObservable extends BaseTest {
 
     @Test
     public void doEmitErrorUponCameraError() {
-        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager()).test();
+        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager(), 0).test();
 
         CameraDevice cameraDevice = emulator.onOpened(CameraEmulator.CAMERA_LIST_SAMPLE[0]);
         emulator.onError(cameraDevice, 1);
@@ -61,7 +61,7 @@ public class TestCameraObservable extends BaseTest {
 
     @Test
     public void doHandleDisposeBeforeCameraError() {
-        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager()).test();
+        TestObserver<CameraDevice> observer = CameraObservable.create(emulator.getCameraManager(), 0).test();
 
         CameraDevice cameraDevice = emulator.onOpened(CameraEmulator.CAMERA_LIST_SAMPLE[0]);
         observer.dispose();
