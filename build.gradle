@@ -26,8 +26,8 @@ allprojects {
     project.ext {
         branch = 'git rev-parse --abbrev-ref HEAD'.execute([], project.rootDir).text.trim()
         sha = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
-        apiVersion = "2.1.0"
-        apiVersionCode = 2006
+        apiVersion = "2.2.0"
+        apiVersionCode = 2007
         apiRc = 1
 
         getVersionName = { suffix = '' ->
