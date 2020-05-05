@@ -1,0 +1,10 @@
+## Version 2.2.0
+
+QR code detection improvement
+
+Changes and fixes:
+* Improved recognition when lighting is uneven and some parts of the QR code are darker than others
+
+Known Issues:
+* Camera gets closed and re-opened on screen rotation causing some devices to make a 'click' noise
+* Preview gets upside down if the device is quickly rotated to an angle of 180 degrees

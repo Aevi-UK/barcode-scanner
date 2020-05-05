@@ -1,5 +1,6 @@
 # Barcode scanner
-A wrapper around the zbar library to easily integrate QR code scanning into your Android applications. The zbar sources are based on the most up to date revision found at: http://zbar.hg.sourceforge.net:8000/hgroot/zbar/zbar (changeset _362:38e78368283d_)
+Besides what its name says this library is primarly intended to scan QR codes and has been tweaked as such. Regular barcode recognition may be added in the future, the core of this library being based on ZBar. 
+The zbar sources have been imported from the most up to date available revision found at: http://zbar.hg.sourceforge.net:8000/hgroot/zbar/zbar (changeset _362:38e78368283d_)
 
 ## Build
 In order to build this library, the following Android SDK components are required:
@@ -32,8 +33,8 @@ To create a camera preview in your activity / fragment, simply use the dedicated
 ```
 In order for the preview to start, you will still need to explictly call the `start()` method of `Camera2Preview` and subscribe to the returned `Observable`. This will return a `Disposable` which you will then be able to use in order to stop the preview. For a concrete example, refer to the next section.
 
-### Barcode scanning
-Once you have started the camera preview as described in the previous section, scanning QR codes is relatively simple. Just call `BarcodeObservable.create()` passing the `Observable` returned by the `Camera2Preview.start()` method and you will get notified whenever a valid QR code is scanned.
+### Code scanning
+Once you have started the camera preview as described in the previous section, scanning codes is relatively simple. Just call `BarcodeObservable.create()` passing the `Observable` returned by the `Camera2Preview.start()` method and you will get notified whenever a valid code is scanned.
 
 ```java
 @Override

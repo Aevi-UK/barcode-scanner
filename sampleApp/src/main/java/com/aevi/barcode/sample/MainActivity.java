@@ -20,23 +20,25 @@ package com.aevi.barcode.sample;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
+import android.widget.Toast;
 import androidx.annotation.NonNull;
-import com.aevi.barcode.scanner.BarcodeScanner;
-import com.aevi.barcode.scanner.Camera2Preview;
-
-import java.util.concurrent.TimeUnit;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+import com.aevi.barcode.scanner.BarcodeScanner;
+import com.aevi.barcode.scanner.Camera2Preview;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements Consumer<String> {
 
@@ -56,11 +58,19 @@ public class MainActivity extends AppCompatActivity implements Consumer<String> 
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String content = getArguments().getString(PARAM_CONTENT, getString(R.string.text_no_content));
             return new AlertDialog.Builder(getContext())
                     .setTitle(R.string.title_scanned_code)
                     .setMessage(getArguments().getString(PARAM_CONTENT, getString(R.string.text_no_content)))
-                    .setPositiveButton(android.R.string.ok, null)
+                    .setPositiveButton(android.R.string.copy, (dialog, which) -> copy(content))
+                    .setNegativeButton(android.R.string.cancel, null)
                     .create();
+        }
+
+        private void copy(String value) {
+            ((ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE))
+                    .setPrimaryClip(ClipData.newPlainText("qrcode", value));
+            Toast.makeText(getContext(), R.string.text_copied, Toast.LENGTH_SHORT).show();
         }
     }
 

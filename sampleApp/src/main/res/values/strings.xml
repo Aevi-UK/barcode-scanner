@@ -2,4 +2,5 @@
     <string name="app_name">Barcode sample app</string>
     <string name="title_scanned_code">Scanned QR code</string>
     <string name="text_no_content">No content found</string>
+    <string name="text_copied">Copied to clipboard</string>
 </resources>
