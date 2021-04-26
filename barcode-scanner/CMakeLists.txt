@@ -56,3 +56,7 @@ add_library(
 	${zbar-dir}/qrcode/util.c )
 
 include_directories( ${cpp-dir}/include ${jni-dir} ${zbar-dir} )
+
+# Greatly improves QR code recognition when lighting is uneven and some parts of the QR code are darker than others
+# Note however that such value seems to break regular barcode recognition
+target_compile_definitions(zbarjni PRIVATE ZBAR_SCANNER_EWMA_WEIGHT=0.1)
