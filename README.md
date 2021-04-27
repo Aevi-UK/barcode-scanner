@@ -11,17 +11,22 @@ The project can be built using the standard gradle build process:
 `./gradlew assembleRelease`
 
 ## Usage
-In your main gradle.build you'll need to include the following public bintray in your main repositories section:
+You will need to generate a [Github personal access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) with the `read:packages` OAuth scope and then define the following repository in you main gradle project file:
 ```
-repositories {
-    maven {
-        url "http://dl.bintray.com/aevi/aevi-uk"
+maven {
+    name = "github"
+    url = uri("https://maven.pkg.github.com/aevi-uk/*")
+    credentials {
+        username = "[your github username]"
+        password = "[your github personal access token]"
     }
 }
 ```
 
-then, add the dependency to your relevant module _build.gradle_ file:
-```implementation 'com.aevi.barcode:barcode-scanner:<version>'```
+This will allow Gradle to fetch prebuilt binaries of the library from the AEVI publication repository. You can then add the dependency to your relevant module _build.gradle_ file:
+```
+implementation 'com.aevi.dms:manufacturer-enabled-api:<version>'
+```
 
 ### Camera preview
 To create a camera preview in your activity / fragment, simply use the dedicated `Camera2Preview` view, you can embed it directly in your layout file:
