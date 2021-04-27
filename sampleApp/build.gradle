@@ -1,7 +1,9 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion compileSDK
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
+    ndkVersion project.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -12,7 +14,7 @@ android {
         applicationId "com.aevi.barcode.sample"
         minSdkVersion projectMinSdkVersion
         targetSdkVersion projectMaxSdkVersion
-        versionCode project.apiVersionCode
+        versionCode project.versionCode
         versionName project.getVersionName()
     }
 

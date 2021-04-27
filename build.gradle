@@ -1,12 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        jcenter()
         google()
+        jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.2'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath "com.android.tools.build:gradle:3.5.2"
     }
 }
 
@@ -23,20 +22,29 @@ subprojects {
 
 allprojects {
 
+    ext.applyScript = { String script ->
+        try {
+            apply from: new File(rootDir, "gradle-scripts/${script}.gradle").path
+        } catch (Exception e) {
+            ext."${script}" = null
+            project.logger.log(LogLevel.WARN, e.message)
+        }
+    }
+
     project.ext {
         branch = 'git rev-parse --abbrev-ref HEAD'.execute([], project.rootDir).text.trim()
         sha = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
-        apiVersion = "2.2.0"
-        apiVersionCode = 2007
+        versionName = "2.2.0"
+        versionCode = 2007
         apiRc = 1
 
         getVersionName = { suffix = '' ->
             if (branch.equals('master')) {
-                return "${apiVersion}${suffix}"
+                return "${versionName}${suffix}"
             } else if (branch.startsWith('release/')) {
-                "${apiVersion}${suffix}-RC1"
+                "${versionName}${suffix}-RC1"
             } else {
-                "${apiVersion}${suffix}-SNAPSHOT-${sha}"
+                "${versionName}${suffix}-SNAPSHOT-${sha}"
             }
         }
     }

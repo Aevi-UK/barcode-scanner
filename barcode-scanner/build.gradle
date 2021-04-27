@@ -1,18 +1,22 @@
 apply plugin: 'com.android.library'
-apply from: '../bintray.gradle'
 
-ext.applicationName = name
-ext.artifactIdPrefix = "barcode-scanner"
-ext.artifactGroupId = "com.aevi.barcode"
+applyScript("publishingUtils")
+
+publishingUtils?.publication {
+    groupId "com.aevi.barcode"
+    artifactId "barcode-scanner"
+    version project.getVersionName()
+}
 
 android {
-    compileSdkVersion compileSDK
-    buildToolsVersion androidBuildVersion
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
+    ndkVersion project.ndkVersion
     
     defaultConfig {
         minSdkVersion projectMinSdkVersion
         targetSdkVersion projectMaxSdkVersion
-        versionCode project.apiVersionCode
+        versionCode project.versionCode
     }
 
     buildTypes {
