@@ -1,14 +1,19 @@
 # Barcode scanner
-Besides what its name says this library is primarly intended to scan QR codes and has been tweaked as such. Regular barcode recognition may be added in the future, the core of this library being based on ZBar. 
+Besides what its name says this library is primarily intended to scan QR codes and has been tweaked as such. Regular barcode recognition may be added in the future, the core of this library being based on ZBar. 
 The zbar sources have been imported from the most up to date available revision found at: http://zbar.hg.sourceforge.net:8000/hgroot/zbar/zbar (changeset _362:38e78368283d_)
 
 ## Build
-In order to build this library, the following Android SDK components are required:
+This library depends on the following Android SDK components to build:
 * ndk-bundle
 * cmake
 
-The project can be built using the standard gradle build process:
-`./gradlew assembleRelease`
+In order to be able to download dependencies you will need to generate a [Github personal access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) with the `read:packages` OAuth scope and add the following properties to your `$HOME/.gradle/gradle.properties` file:
+```
+github_actor=[your github username]
+github_token=[your github token]
+```
+This will allow Gradle to fetch prebuilt binaries of libraries from the AEVI publication repository. You can then build the project using Gradle:
+```./gradlew assembleRelease```
 
 ## Usage
 You will need to generate a [Github personal access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) with the `read:packages` OAuth scope and then define the following repository in you main gradle project file:
@@ -25,7 +30,7 @@ maven {
 
 This will allow Gradle to fetch prebuilt binaries of the library from the AEVI publication repository. You can then add the dependency to your relevant module _build.gradle_ file:
 ```
-implementation 'com.aevi.dms:manufacturer-enabled-api:<version>'
+implementation 'com.aevi.barcode:barcode-scanner:<version>'
 ```
 
 ### Camera preview
@@ -61,4 +66,4 @@ public void onPause() {
 ## License
 This library is licensed under the [LGPL license](LICENSE)
 
-Copyright (c) 2019 AEVI International GmbH. All rights reserved
+Copyright (c) 2021 AEVI International GmbH. All rights reserved

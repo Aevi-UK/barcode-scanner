@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+apply from: gradleScript("root/versioning-utils.gradle")
+
 android {
     compileSdkVersion project.compileSdkVersion
     buildToolsVersion project.buildToolsVersion
@@ -14,8 +16,8 @@ android {
         applicationId "com.aevi.barcode.sample"
         minSdkVersion projectMinSdkVersion
         targetSdkVersion projectMaxSdkVersion
-        versionCode project.versionCode
-        versionName project.getVersionName()
+        versionCode versioningUtils.versionCode
+        versionName versioningUtils.versionName
     }
 
     buildTypes {

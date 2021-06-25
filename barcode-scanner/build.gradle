@@ -1,11 +1,12 @@
 apply plugin: 'com.android.library'
 
-applyScript("publishingUtils")
+apply from: gradleScript("root/versioning-utils.gradle")
+apply from: gradleScript("android/publishing-utils.gradle")
 
-publishingUtils?.publication {
+publishingUtils.publication {
     groupId "com.aevi.barcode"
     artifactId "barcode-scanner"
-    version project.getVersionName()
+    version versioningUtils.versionName
 }
 
 android {
@@ -16,7 +17,6 @@ android {
     defaultConfig {
         minSdkVersion projectMinSdkVersion
         targetSdkVersion projectMaxSdkVersion
-        versionCode project.versionCode
     }
 
     buildTypes {

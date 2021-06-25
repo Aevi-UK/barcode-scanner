@@ -1,15 +1,23 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
+    apply from: 'dependencies.gradle'
     repositories {
         google()
         jcenter()
+        maven {
+            name = "github-aevi-uk"
+            url = uri("https://maven.pkg.github.com/aevi-uk/gradle-scripts")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: github_actor
+                password = System.getenv("GITHUB_TOKEN") ?: github_token
+            }
+        }
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:3.5.2"
+        classpath "com.android.tools.build:gradle:$gradlePluginVersion"
+        classpath "com.aevi.sdk.build:gradle-scripts:$gradleScriptsVersion"
     }
 }
-
-apply from: 'dependencies.gradle'
 
 subprojects {
 
@@ -22,31 +30,8 @@ subprojects {
 
 allprojects {
 
-    ext.applyScript = { String script ->
-        try {
-            apply from: new File(rootDir, "gradle-scripts/${script}.gradle").path
-        } catch (Exception e) {
-            ext."${script}" = null
-            project.logger.log(LogLevel.WARN, e.message)
-        }
-    }
-
-    project.ext {
-        branch = 'git rev-parse --abbrev-ref HEAD'.execute([], project.rootDir).text.trim()
-        sha = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
-        versionName = "2.2.0"
-        versionCode = 2007
-        apiRc = 1
-
-        getVersionName = { suffix = '' ->
-            if (branch.equals('master')) {
-                return "${versionName}${suffix}"
-            } else if (branch.startsWith('release/')) {
-                "${versionName}${suffix}-RC1"
-            } else {
-                "${versionName}${suffix}-SNAPSHOT-${sha}"
-            }
-        }
+    ext.gradleScript = { path ->
+        return rootProject.buildscript.classLoader.getResource(path).toURI()
     }
 
     repositories {
